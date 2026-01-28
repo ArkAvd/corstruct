@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CorStruct — Управление и Прибыль</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;400;500;600&family=Manrope:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            /* Palette */
+            --bg-color: #0E0F12;
+            /* Graphite */
+            --text-primary: #F2F1EC;
+            /* Ivory */
+            --text-secondary: rgba(242, 241, 236, 0.6);
+            /* Ivory with opacity */
+
+            --card-bg: #E6E4DE;
+            /* Warm Grey-Milk */
+            --card-text: #0E0F12;
+            /* Text for light cards */
+
+            --accent-color: #2F3E36;
+            /* Dark Olive Green */
+            --accent-text: #F2F1EC;
+            /* Text on accent color */
+
+            --micro-accent: #8C7A5A;
+            /* Muted Bronze */
+
+            --border-light: rgba(0, 0, 0, 0.06);
+            --border-hover: rgba(0, 0, 0, 0.15);
+
+            /* Typography */
+            --font-display: 'Fraunces', serif;
+            --font-body: 'Manrope', sans-serif;
+
+            /* Spacing */
+            --space-xs: 0.5rem;
+            --space-s: 1.5rem;
+            --space-m: 3rem;
+            --space-l: 6rem;
+
+            /* UI */
+            --radius-card: 1rem;
+            --radius-sm: 0.5rem;
+            --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+            --shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
+            --header-height: 80px;
+            --header-height: 80px;
+
+            /* Visual Update Vars */
+            --text-graphite: #22252A;
+            --orange-warning: #FF6B00;
+        }
+
+        /* Animation for Problem Card */
+        @keyframes darkPulse {
+            0% {
+                box-shadow: 0 0 15px rgba(11, 11, 13, 0.4);
+                border-color: rgba(60, 60, 60, 0.3);
+            }
+
+            50% {
+                box-shadow: 0 0 30px rgba(20, 20, 22, 0.6);
+                border-color: rgba(100, 100, 100, 0.5);
+            }
+
+            100% {
+                box-shadow: 0 0 15px rgba(11, 11, 13, 0.4);
+                border-color: rgba(60, 60, 60, 0.3);
+            }
+        }
+
+        .card-dark-animated {
+            background: linear-gradient(145deg, #1A1C20, #0E0F12);
+            color: #F2F1EC;
+            animation: darkPulse 4s infinite ease-in-out;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Global Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: var(--font-body);
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-family: var(--font-display);
+            font-weight: 400;
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+        }
+
+        p,
+        li,
+        span,
+        a,
+        div {
+            font-family: var(--font-body);
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+            transition: opacity 0.2s;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background: var(--text-primary);
+            color: var(--bg-color);
+            padding: 1rem 2rem;
+            border-radius: 100px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            border: 1px solid transparent;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            letter-spacing: -0.01em;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-color);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(214, 48, 48, 0.3);
+        }
+
+        /* Section Layouts */
+        section {
+            padding: var(--space-l) 0;
+        }
+
+        .section-header {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto var(--space-m);
+        }
+
+        .section-header h2 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .section-header p {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Utility: Grid */
+        .bento-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        /* Card Style */
+        .card {
+            background: var(--card-bg);
+            color: var(--card-text);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-card);
+            padding: 2rem;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card:hover {
+            border-color: var(--border-hover);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        /* ================= Header ================= */
+        header {
+            height: var(--header-height);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: rgba(14, 15, 18, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .logo {
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: 1.5rem;
+            letter-spacing: -0.03em;
+        }
+
+        /* ================= 1. Hero ================= */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding-top: var(--header-height);
+        }
+
+        .hero-visual img {
+            width: 220px;
+            margin-bottom: 2rem;
+            filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.15));
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .hero h1 {
+            font-size: 4.5rem;
+            margin-bottom: 2rem;
+            letter-spacing: -0.04em;
+            line-height: 1.05;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin-bottom: 3rem;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* ================= 2. Problem ================= */
+        .problem-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .problem-list li {
+            margin-bottom: 1rem;
+            padding-left: 1.5rem;
+            position: relative;
+            margin-bottom: 1rem;
+            padding-left: 1.5rem;
+            position: relative;
+            color: var(--text-graphite);
+            text-align: left;
+        }
+
+        .problem-list li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: var(--accent-color);
+            font-weight: bold;
+        }
+
+        .problem-quote {
+            grid-column: 1 / -1;
+            background: #111;
+            color: #fff;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .problem-quote p {
+            font-size: 2rem;
+            font-family: var(--font-display);
+            line-height: 1.3;
+        }
+
+        /* ================= 3. Approach (Vercel Style) ================= */
+        .approach-grid {
+            grid-template-columns: repeat(2, 1fr);
+            margin-bottom: 3rem;
+        }
+
+        .comparison-card {
+            padding: 0;
+            /* Clear padding for inner layout */
+            gap: 0;
+        }
+
+        .comparison-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--border-light);
+            background: #FAFAFA;
+        }
+
+        .comparison-header h3 {
+            font-size: 1.25rem;
+            font-family: var(--font-body);
+            font-weight: 600;
+        }
+
+        .comparison-body {
+            padding: 2rem;
+        }
+
+        .comparison-card.negative .comparison-header {
+            background: #f3f3f3;
+            color: #888;
+        }
+
+        .comparison-card.positive {
+            border: 1px solid var(--card-text);
+        }
+
+        .comparison-card.positive .comparison-header {
+            background: #fff;
+        }
+
+        .approach-steps {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+        }
+
+        .step-card {
+            background: var(--card-bg);
+            color: var(--card-text);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-card);
+            padding: 2rem;
+            text-align: left;
+            position: relative;
+        }
+
+        .step-number {
+            font-family: var(--font-display);
+            font-size: 4rem;
+            color: #f0f0f0;
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+            line-height: 1;
+            pointer-events: none;
+        }
+
+        .step-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .step-card p {
+            font-size: 0.95rem;
+            color: rgba(14, 15, 18, 0.7);
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ================= 4. Reality ================= */
+        .reality-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .reality-img {
+            border-radius: var(--radius-card);
+            overflow: hidden;
+            height: 500px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .reality-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .reality-text ul li {
+            margin-bottom: 1rem;
+            padding-left: 2rem;
+            position: relative;
+            font-size: 1.1rem;
+        }
+
+        .reality-text ul li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        /* ================= 5. Advantages ================= */
+        .advantages-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .advantage-card {
+            text-align: center;
+            padding: 3rem 2rem;
+        }
+
+        .advantage-card p {
+            color: var(--text-graphite);
+            opacity: 0.9;
+        }
+
+        .icon-circle {
+            width: 64px;
+            height: 64px;
+            background: #F4F4F2;
+            border-radius: 50%;
+            margin: 0 auto 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        /* ================= 6. Results (More Interesting) ================= */
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            /* 3 cols instead of 2 */
+            gap: 1.5rem;
+        }
+
+        .result-card {
+            background: var(--card-bg);
+            color: var(--card-text);
+            padding: 2rem;
+            border-radius: var(--radius-card);
+            border: 1px solid var(--border-light);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+            transition: all 0.3s ease;
+            flex-direction: row;
+            align-items: center;
+            gap: 1rem;
+            justify-content: flex-start;
+        }
+
+        .result-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-color);
+        }
+
+        .result-icon {
+            width: 40px;
+            height: 40px;
+            background: #EFEFEF;
+            color: var(--card-text);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            justify-content: center;
+            margin-bottom: 0;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .result-card h4 {
+            font-family: var(--font-body);
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        /* ================= 7. Team ================= */
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+        }
+
+        .profile {
+            display: flex;
+            align-items: flex-start;
+            gap: 2rem;
+            padding: 2.5rem;
+            flex-wrap: nowrap;
+            /* Prevent wrapping */
+        }
+
+        .profile-img {
+            width: 150px;
+            height: 150px;
+            background: #EFEFEF;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        /* ================= 8. Format (Workflow) ================= */
+        /* ================= 8. Format (Workflow) ================= */
+        #format {
+            /* Removed light gradient to match dark theme */
+        }
+
+        .workflow-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            max-width: 1000px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .section-header p {
+            text-align: center;
+        }
+
+        .workflow-card {
+            background: var(--card-bg);
+            color: var(--card-text);
+            padding: 2.5rem;
+            border-radius: var(--radius-card);
+            border: 1px solid var(--border-light);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .workflow-card.full-width {
+            grid-column: 1 / -1;
+            background: var(--card-bg);
+            border-color: var(--accent-color);
+        }
+
+        .workflow-card.accent-bg {
+            background: #111;
+            color: #fff;
+        }
+
+        .workflow-card.accent-bg .price-tag {
+            color: var(--accent-color);
+        }
+
+        .workflow-card.accent-bg p {
+            color: #ccc;
+        }
+
+        .step-badge {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #999;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .step-badge.highlight {
+            color: var(--accent-color);
+            font-weight: 700;
+        }
+
+        .workflow-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .price-tag {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .workflow-list li {
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .workflow-list li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--accent-color);
+        }
+
+        /* ================= 9. CTA ================= */
+        .cta-section {
+            background: #111;
+            color: #fff;
+            text-align: center;
+            padding: 6rem 2rem;
+            border-radius: 2rem;
+            margin: 4rem 2rem;
+            width: calc(100% - 4rem);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Abstract CTA Background */
+        .cta-section::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, rgba(0, 0, 0, 0) 50%);
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .cta-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .cta-section h2 {
+            color: #fff;
+            margin-bottom: 1.5rem;
+            font-size: 3rem;
+        }
+
+        .cta-section .btn-primary {
+            background: #fff;
+            color: #000;
+            padding: 1.25rem 3rem;
+            font-size: 1.1rem;
+        }
+
+        .cta-section .btn-primary:hover {
+            background: var(--accent-color);
+            color: #fff;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .hero h1 {
+                font-size: 3rem;
+            }
+
+            .problem-grid,
+            .approach-grid,
+            .reality-container,
+            .advantages-grid,
+            .results-grid,
+            .team-grid,
+            .pricing-grid,
+            .approach-steps {
+                grid-template-columns: 1fr;
+            }
+
+            .section-header h2 {
+                font-size: 2.25rem;
+            }
+
+            .reality-img {
+                height: 300px;
+                order: -1;
+            }
+
+            .cta-section {
+                width: auto;
+                margin: 2rem 1rem;
+                border-radius: 1.5rem;
+                padding: 4rem 1.5rem;
+            }
+
+            .price-card.featured {
+                transform: none;
+            }
+
+            .workflow-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="logo">CorStruct</div>
+        <div style="display: flex; gap: 2rem; align-items: center;">
+            <a href="https://t.me/CorStruct" target="_blank"
+                style="font-size: 0.95rem; font-weight: 500; color: var(--text-primary); transition: opacity 0.2s;">Telegram</a>
+            <a href="https://t.me/ArkadiyAv" target="_blank" class="btn-primary"
+                style="padding: 0.75rem 1.5rem; font-size: 0.9rem;">Связаться</a>
+        </div>
+    </header>
+
+    <!-- 1. Hero Section -->
+    <section class="hero">
+        <section class="hero">
+            <div class="container">
+                <h1>
+                    Бизнес вырос,<br>а управляемость — нет?
+                </h1>
+                <p>
+                    Мы помогаем собственникам компаний вернуть контроль над бизнесом
+                    и рост чистой прибыли через пересборку людей, ролей и управленческой модели.
+                </p>
+                <a href="https://t.me/ArkadiyAv" target="_blank" class="btn-primary">Обсудить задачу</a>
+            </div>
+        </section>
+
+        <!-- 2. Problem Section -->
+        <section id="problem">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Почему бизнес застревает после роста</h2>
+                    <p>Почти каждый бизнес после 30-40 сотрудников сталкивается не с кризисом рынка, а с кризисом
+                        управления.</p>
+                </div>
+
+                <div class="bento-grid problem-grid">
+                    <!-- Card 1 -->
+                    <div class="card">
+                        <h3>Компания растет, но:</h3>
+                        <ul class="problem-list" style="margin-top: 1.5rem;">
+                            <li>Роли размываются</li>
+                            <li>Решения конфликтуют</li>
+                            <li>Ответственность расползается</li>
+                            <li>Люди начинают "делать работу", но перестают давать результат</li>
+                        </ul>
+                    </div>
+
+                    <!-- Card 2 -->
+                    <div class="card">
+                        <h3>Собственник:</h3>
+                        <ul class="problem-list" style="margin-top: 1.5rem;">
+                            <li>Принимает все больше решений</li>
+                            <li>Тушит пожары</li>
+                            <li>Теряет фокус на развитии</li>
+                        </ul>
+                    </div>
+
+                    <!-- Card 3 (Quote) -->
+                    <div class="card problem-quote card-dark-animated" style="text-align: center;">
+                        <p>Проблема в том, что бизнес вырос без управленческой модели, способной его удержать</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. Approach Section (Vercel Style) -->
+        <section id="approach">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Наш подход</h2>
+                    <p>Мы работаем не с симптомами, а с моделью. Мы смотрим на бизнес сверху, а не изнутри отдельных
+                        функций.</p>
+                </div>
+
+                <div class="bento-grid approach-grid">
+                    <div class="card comparison-card negative">
+                        <div class="comparison-header">
+                            <h3>Нас не интересует</h3>
+                        </div>
+                        <div class="comparison-body">
+                            <ul>
+                                <li style="margin-bottom:0.5rem; opacity:0.7">✕ Как улучшить процесс</li>
+                                <li style="opacity:0.7">✕ Как повысить мотивацию</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card comparison-card positive">
+                        <div class="comparison-header">
+                            <h3>Нас интересует</h3>
+                        </div>
+                        <div class="comparison-body">
+                            <ul style="font-weight: 500;">
+                                <li style="margin-bottom:0.5rem">✓ Где бизнес теряет деньги</li>
+                                <li style="margin-bottom:0.5rem">✓ Какие решения конфликтуют</li>
+                                <li>✓ Какие роли реально нужны</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="approach-steps">
+                    <div class="step-card">
+                        <div class="step-number">01</div>
+                        <h3>Диагностика</h3>
+                        <p>Мы разбираем бизнес как систему: людей, роли, зоны ответственности, управленческие
+                            решения.<br><br><strong>Результат:</strong> ясная картина потерь и причин.</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">02</div>
+                        <h3>Проектирование</h3>
+                        <p>Формируем структуру под реальный масштаб бизнеса:<br>• Кто за что отвечает<br>• Кто усиливает
+                            результат<br>• Где собственник должен выйти</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">03</div>
+                        <h3>Внедрение</h3>
+                        <p>Мы сопровождаем сложные решения и контролируем, чтобы модель заработала, а не осталась на
+                            слайдах.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. Reality Section -->
+        <section id="reality">
+            <div class="container reality-container">
+                <div class="reality-img">
+                    <img src="ga887ebd5de2e972ccd3.jpg.webp" alt="Стратегическая сессия в офисе">
+                </div>
+                <div class="reality-text">
+                    <h2>Чем мы занимаемся на самом деле</h2>
+                    <p style="margin-bottom: 2rem; font-size: 1.1rem; color: var(--text-secondary);">
+                        Наша задача - вернуть управляемость и прибыль.
+                        Мы <strong>не</strong> продаём оргструктуры или HR-документы.
+                    </p>
+
+                    <h3>Мы помогаем бизнесу:</h3>
+                    <ul style="margin: 1.5rem 0;">
+                        <li>Перестать зависеть от собственника</li>
+                        <li>Сократить управленческий хаос</li>
+                        <li>Вернуть рост чистой прибыли</li>
+                    </ul>
+                    <p
+                        style="font-style: italic; color: var(--text-secondary); border-left: 2px solid var(--text-secondary); padding-left: 1rem;">
+                        Оргструктура - инструмент. Результат - контроль и деньги.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. Advantages -->
+        <section id="advantages">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Преимущества подхода</h2>
+                </div>
+                <div class="bento-grid advantages-grid">
+                    <div class="card advantage-card" style="color: var(--text-graphite);">
+                        <div class="icon-circle">
+                            <!-- Focus/Target Icon -->
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <circle cx="12" cy="12" r="4"></circle>
+                                <line x1="21.17" y1="8.83" x2="12" y2="12"></line>
+                            </svg>
+                        </div>
+                        <h3>Фокус на результате</h3>
+                        <p style="margin-top: 1rem; font-size: 0.95rem;">Наш KPI — не
+                            отчёты,
+                            а изменения в управляемости и деньгах.</p>
+                    </div>
+                    <div class="card advantage-card" style="color: var(--text-graphite);">
+                        <div class="icon-circle">
+                            <!-- Responsibility/Shield Icon -->
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                            </svg>
+                        </div>
+                        <h3>Ответственность</h3>
+                        <p style="margin-top: 1rem; font-size: 0.95rem;">Если решения
+                            приняты
+                            и выполняются - мы отвечаем за результат.</p>
+                    </div>
+                    <div class="card advantage-card" style="color: var(--text-graphite);">
+                        <div class="icon-circle">
+                            <!-- Individuality/Fingerprint (User) Icon -->
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                        </div>
+                        <h3>Индивидуальность</h3>
+                        <p style="margin-top: 1rem; font-size: 0.95rem;">Мы не используем
+                            шаблоны. Каждый бизнес - отдельная модель.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 6. Results (Updated) -->
+        <section id="results">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Результаты проектов</h2>
+                    <p>Что меняется после пересборки</p>
+                </div>
+                <div class="results-grid">
+                    <div class="result-card">
+                        <div class="result-icon">✓</div>
+                        <h4>Собственник выходит из ежедневной операционки</h4>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-icon">✓</div>
+                        <h4>Сокращается раздутый ФОТ</h4>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-icon">✓</div>
+                        <h4>Решения принимаются быстрее и без конфликтов</h4>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-icon">✓</div>
+                        <h4>Команда начинает работать по ролям, а не «по привычке»</h4>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-icon">✓</div>
+                        <h4>Появляется прогнозируемость и контроль</h4>
+                    </div>
+                    <div class="result-card" style="border: 2px solid var(--orange-warning);">
+                        <div class="result-icon">$</div>
+                        <h4>Растет чистая прибыль бизнеса</h4>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 7. Team -->
+        <section id="team">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Наша команда</h2>
+                </div>
+                <div class="team-grid">
+                    <div class="card profile">
+                        <div class="profile-img"><img src="Арк.png" alt="Аркадий"
+                                style="width:100%; height:100%; border-radius:50%; object-fit:cover;"></div>
+                        <div style="flex: 1; min-width: 0;">
+                            <h3>Аркадий</h3>
+                            <p
+                                style="font-weight:600; font-size: 0.9rem; color: rgba(14, 15, 18, 0.6); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">
+                                Основатель</p>
+                            <p
+                                style="margin-top: 1rem; font-size: 0.95rem; color: #0E0F12; opacity: 0.85; line-height: 1.5;">
+                                Стратегия, управление, внедрение. Работает с собственниками в точке управленческого
+                                излома.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="card profile">
+                        <div class="profile-img"><img src="Иза (1).png" alt="Изабель"
+                                style="width:100%; height:100%; border-radius:50%; object-fit:cover;"></div>
+                        <div style="flex: 1; min-width: 0;">
+                            <h3>Изабель</h3>
+                            <p
+                                style="font-weight:600; font-size: 0.9rem; color: rgba(14, 15, 18, 0.6); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">
+                                Партнер</p>
+                            <p
+                                style="margin-top: 1rem; font-size: 0.95rem; color: #0E0F12; opacity: 0.85; line-height: 1.5;">
+                                Маркетинг, позиционирование, коммуникации. Подключается, когда это усиливает результат.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 8. Format (Workflow) -->
+        <section id="format">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Формат работы</h2>
+                    <p>Понятный путь от знакомства до результата</p>
+                </div>
+
+                <div class="workflow-grid">
+                    <!-- 01 -->
+                    <div class="workflow-card full-width">
+                        <div class="step-badge highlight">01. Знакомство</div>
+                        <h3>Бесплатная консультация</h3>
+                        <p style="color: var(--text-graphite);">30-минутный разбор вашей ситуации. Мы поймем, сможем ли
+                            помочь, а вы — подходит ли вам наш
+                            подход.</p>
+                    </div>
+
+                    <!-- 02 -->
+                    <div class="workflow-card">
+                        <div class="step-badge">02. Диагностика</div>
+                        <h3>Диагностическая сессия</h3>
+                        <div class="price-tag">150 - 300 тыс. ₽</div>
+                        <ul class="workflow-list" style="margin-left: 0.5rem;">
+                            <li>Глубокий анализ потерь</li>
+                            <li>Карта проблем управления</li>
+                            <li><strong>Решение:</strong> идем в проект или нет</li>
+                        </ul>
+                    </div>
+
+                    <!-- 03 -->
+                    <div class="workflow-card" style="border: 2px solid var(--orange-warning);">
+                        <div class="step-badge">03. Пересборка</div>
+                        <h3>Обсуждается после диагностики</h3>
+                        <div class="price-tag">Индивидуально</div>
+                        <ul class="workflow-list">
+                            <li>Пересобираем людей и роли</li>
+                            <li>Проектируем модель управления</li>
+                            <li>Сопровождаем внедрение</li>
+                            <li style="margin-top: 0.5rem; font-weight: 600;">Результат: Рост прибыли</li>
+                        </ul>
+                    </div>
+
+                    <!-- 04 -->
+                    <div class="workflow-card full-width" style="border-style: dashed;">
+                        <div class="step-badge">04. Поддержка</div>
+                        <h3>Сопровождение</h3>
+                        <div class="price-tag" style="font-size: 1rem; margin-bottom: 0;">Индивидуально в зависимости от
+                            проекта</div>
+                        <p style="margin-top: 0.5rem; color: var(--text-graphite);">Поддержка собственника и контроль
+                            решений после завершения
+                            проекта.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 9. Final CTA -->
+        <div class="cta-section">
+            <div class="cta-content">
+                <h2>Первый шаг - диагностика</h2>
+                <p style="opacity: 0.8; max-width: 500px; margin: 0 auto 2.5rem;">Не откладывайте решение проблем.
+                    Запишитесь на бесплатную консультацию, чтобы понять, как мы можем помочь.</p>
+                <a href="https://t.me/ArkadiyAv" target="_blank" class="btn-primary">Записаться на консультацию</a>
+            </div>
+        </div>
+
+        <footer style="text-align: center; padding: 2rem; color: #999; font-size: 0.85rem;">
+            <p>&copy; 2026 CorStruct. Все права защищены.<br>Москва, Россия.</p>
+        </footer>
+
+</body>
+
+</html>
